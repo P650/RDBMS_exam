@@ -103,6 +103,11 @@ from
   ) res 
 order by 
   attendance_percentage
+  
+  --Get student with most absences
+select * from
+(select attendance_student_ref , count(attendance_presence)
+from attendance where attendance_presence = 0 group by attendance_student_ref) as OP1 order by OP1.count desc limit 1
   *********************************************************************************************************************************************************
   
 select p.program_assignment, count(p.program_assignment) as course_count
