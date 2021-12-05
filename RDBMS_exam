@@ -103,3 +103,128 @@ from
   ) res 
 order by 
   attendance_percentage
+  *********************************************************************************************************************************************************
+  
+select p.program_assignment, count(p.program_assignment) as course_count
+from programs p 
+group by program_assignment ;
+
+select program_assignment, count(program_assignment) as count_course, program_course_rev_ref as semester
+from programs p 
+group by program_assignment , program_course_rev_ref 
+order by program_assignment , program_course_rev_ref ;
+
+select distinct (session_room) 
+from sessions s 
+where session_room is not null;
+
+select *
+from contacts c 
+left join teachers t 
+on c.contact_email = t.teacher_contact_ref 
+where t.teacher_contact_ref is not null;
+
+select *
+from teachers t 
+order by t.teacher_study_level asc ;
+
+select 
+count(s.student_epita_email) 
+from students s
+where student_population_period_ref = 'FALL'
+and s.student_population_year_ref = '2021'
+and s.student_population_code_ref = 'DSA'
+and s.student_enrollment_status = lower('COMPLETED');
+
+select g.grade_course_code_ref , g.grade_exam_type_ref 
+from grades g 
+group by g.grade_course_code_ref , g.grade_exam_type_ref ;
+
+select g.grade_student_epita_email_ref , g.grade_score 
+from grades g
+left join students s 
+on g.grade_student_epita_email_ref = s.student_epita_email ;
+
+--list of applicant / contacts country;
+select distinct contact_country 
+from contacts c ;
+
+--all the courses taught by Aleshia slusarski teacher
+select distinct session_course_ref 
+from sessions s
+where session_prof_ref = 'alisha.slusarski@epita.fr' ;
+
+select *
+from courses c 
+where course_code = 'PM_AGILE';
+
+----------------------------------------------------------------------
+-- from 3
+
+select distinct  grade_exam_type_ref 
+from grades g ;
+
+select g.grade_course_code_ref , g.grade_score 
+from grades g 
+where g.grade_student_epita_email_ref = 'kris.marrier@epita.fr';
+
+select grade_student_epita_email_ref , g.grade_score 
+from grades g
+where g.grade_exam_type_ref = 'Practical';
+
+--Get students Ranks in an Exam for a course
+select g.grade_student_epita_email_ref, g.grade_score 
+from grades g
+where g.grade_course_code_ref = 'SE_ADV_JAVA'
+and g.grade_exam_type_ref = 'Project';
+
+--Get students Ranks in all exams for a course
+select g.grade_student_epita_email_ref ,g.grade_exam_type_ref , g.grade_score 
+from grades g
+where g.grade_course_code_ref = 'SE_ADV_JAVA';
+
+--Get all courses for one program
+select c.course_code , c.course_name 
+from courses c 
+inner join programs p 
+on c.course_code = p.program_course_code_ref 
+where p.program_assignment = 'SE';
+
+select *
+from programs p ;
+
+--Get courses in common between 2 programs
+select program_course_code_ref 
+from (
+	select p.program_course_code_ref , count(p.program_assignment) as num_prog
+	from programs p 
+	group by p.program_course_code_ref )as a
+where num_prog > 1;
+
+select p.program_course_code_ref 
+from programs p
+group by p.program_course_code_ref ;
+
+--(11-Get all programs following a certain course
+12- get course with the biggest duration
+13-get courses with the same duration
+14-Get all sessions for a specific course
+15-Get all session for a certain period
+16-Get one student attendance sheet
+17- Get one student summary of attendance
+18-Get student with most absences
+)--
+
+
+--12
+select *
+from courses c 
+where c.duration in 
+(select c2.duration 
+from courses c2 
+group by c2.duration
+having count(c2.duration) > 1) order by c.duration asc;
+
+**********************************************************************************************************************************************************************
+  
+  
