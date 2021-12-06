@@ -1,0 +1,329 @@
+select program_assignment, count(program_course_code_ref) from programs 
+group by program_assignment
+
+select * from sessions
+
+select p.program_assignment, p.program_course_rev_ref as semester, count(p.program_course_code_ref) as courses_count 
+from programs p group by p.program_assignment, p.program_course_rev_ref order by p.program_assignment, p.program_course_rev_ref asc;
+
+select distinct(session_type) from sessions
+
+select distinct(session_room) from sessions where session_room is not null
+
+select count(session_course_ref) , session_population_period from sessions group by session_population_period
+
+select count(session_course_ref) , session_population_period  from sessions where sessions.session_population_year = '2020' 
+group by session_population_period
+
+select distinct( session_course_ref , session_prof_ref) from sessions
+
+insert into populations (population_code, population_year, population_period) 
+select p.population_code as pcode, max(p.population_year) as pyear, 'FALL' as intake from populations p group by p.population_code;
+
+
+
+select * from teachers order by teacher_study_level asc 
+
+select * from teachers 
+left join contacts on teachers.teacher_contact_ref = contacts.contact_email
+
+select * from students 
+left join contacts on students.student_contact_ref = contacts.contact_email 
+where contacts.contact_country = 'USA' 
+
+select * from students 
+left join contacts on students.student_contact_ref = contacts.contact_email 
+where date_part('month', contacts.contact_birthdate::date) = 11;
+
+alter table contacts add column contact_age integer NULL;
+
+update 
+  contacts as c1 
+set 
+  contact_age = (
+    SELECT 
+      date_part(
+        'year', 
+        age(contact_birthdate)
+      ) as c_age 
+    FROM 
+      contacts as c2 
+    where 
+      c1.contact_email = c2.contact_email
+  );
+  
+
+
+ALTER TABLE contacts 
+DROP COLUMN contact_age;
+
+SELECT contact_first_name, date_part('year',age(contact_birthdate)) as contact_age FROM contacts;
+
+select 
+  avg(c.contact_age) as student_avg_age 
+from 
+  students as s 
+  left join contacts as c on c.contact_email = s.student_contact_ref
+  
+
+select * from students
+
+select * from populations
+
+select student_population_year_ref, count(student_epita_email) from students group by student_population_year_ref;
+
+select student_population_code_ref, count(student_epita_email) from students group by student_population_code_ref;
+
+select student_population_code_ref,count(student_epita_email) from students where student_enrollment_status = 'completed' and student_population_year_ref = '2021' group by student_population_code_ref
+
+select * from contacts 
+
+left join students on contacts.contact_email = students.student_contact_ref 
+where students.student_contact_ref is NULL
+
+select * from grades
+
+select 
+  avg(g.grade_score) as avg_grade, 
+  pop.population_code as population 
+from 
+  grades as g 
+  inner join programs as p on g.grade_course_code_ref = p.program_course_code_ref 
+  inner join populations as pop on pop.population_code = p.program_assignment 
+where 
+  pop.population_code = 'SE' 
+group by 
+  pop.population_code
+
+select avg(grade_score) from (select * from grades where grade_course_code_ref ilike 'SE%') as FinalTb
+
+select avg(grade_score) , grade_student_epita_email_ref from grades group by grade_student_epita_email_ref
+
+select avg(grade_score) , grade_course_code_ref from grades group by grade_course_code_ref
+
+select OP4.contact_first_name,OP4.contact_last_name,OP4.grade_score from
+((select OP2.student_contact_ref , OP2.grade_score from
+((select  grade_student_epita_email_ref ,grade_score from grades  where grade_course_code_ref = 'CS_DATA_PRIV' order by grade_score desc limit 5) as OP1
+left join students on OP1.grade_student_epita_email_ref = students.student_epita_email) as OP2) as OP3
+left join contacts on OP3.student_contact_ref = contacts.contact_email) as OP4
+
+
+select grade_student_epita_email_ref , rank () over (partition by grade_course_rev_ref order by grade_score desc ) 
+FROM grades where grade_course_code_ref = 'SE_ADV_JS' limit 5
+
+select * from grades
+
+select Distinct(program_course_code_ref) from programs
+
+
+select Distinct(program_course_code_ref) from programs
+
+where program_assignment = 'SE' or program_assignment = 'AIs'
+
+select * from 
+((select * from programs where program_assignment = 'SE') as OP1
+inner Join (select * from programs where program_assignment = 'AIs') as OP2
+on OP1.program_course_rev_ref = OP2.program_course_rev_ref) as OP3
+
+
+SELECT distinct(program_course_code_ref) program_assignment FROM programs where program_assignment = 'SE'
+intersect
+SELECT distinct(program_course_code_ref) program_assignment FROM programs where program_assignment = 'AIs' order by program_assignment
+
+SELECT program_course_code_ref
+FROM programs p2
+where program_assignment in ('SE','ISM')
+GROUP BY program_course_code_ref
+HAVING COUNT(*) = 2
+
+
+select * from courses
+
+select grade_score from grades where grade_student_epita_email_ref = 'simona.morasca@epita.fr'
+
+select *, CAST (session_end_time as integer) - CAST (session_start_time as integer) as differenceTime from sessions  
+
+select count(*) from sessions group by(session_start_time,session_end_time)
+
+select OP2.course_code from
+((select duration from courses
+group by(duration)
+having count(*) > 1 limit 1) as OP1
+left join courses on courses.duration = OP1.duration) as OP2
+
+
+
+select duration from courses
+group by(duration)
+having count(*) > 1 limit 1
+
+
+select * from courses where suration in (select)
+
+select * from courses c where c.duration in (select c2.duration from courses c2 group by c2.duration having count(c2.duration) > 1 limit 1) 
+order by c.duration asc
+
+select * from attendance
+
+select * from
+(select attendance_student_ref , count(attendance_presence) from attendance where attendance_presence = 0 group by attendance_student_ref) as OP1 
+order by OP1.count desc limit 1
+
+-- 6 --
+select avg(grade_score) , grade_course_code_ref from grades group by grade_course_code_ref
+
+-- 4 --
+select OP4.contact_first_name,OP4.contact_last_name,OP4.grade_score from
+((select OP2.student_contact_ref , OP2.grade_score from
+((select grade_student_epita_email_ref ,grade_score from grades where grade_course_code_ref = 'CS_DATA_PRIV' order by grade_score desc limit 5) as OP1
+left join students on OP1.grade_student_epita_email_ref = students.student_epita_email) as OP2) as OP3
+left join contacts on OP3.student_contact_ref = contacts.contact_email) as OP4
+
+-- 5 --
+select grade_student_epita_email_ref , rank () over (partition by grade_course_rev_ref order by grade_score desc ) FROM grades where grade_course_code_ref = 'SE_ADV_JS' limit 5
+
+
+select * from exams
+select * from grades
+
+
+select e.exam_type from courses c 
+right join exams e on e.exam_course_code = c.course_code 
+where e.exam_course_code is not null and c.course_code = 'DT_RDBMS';
+
+-- Get all exams for a specific Course
+select exam_type from exams where exam_course_code = 'DT_RDBMS'
+
+
+select
+avg(
+EXTRACT(
+EPOCH
+FROM
+TO_TIMESTAMP(session_end_time, 'HH24:MI:SS'):: TIME - TO_TIMESTAMP(
+session_start_time, 'HH24:MI:SS'
+):: TIME
+)/ 3600
+) as duration
+from
+sessions as s
+left join courses as c on c.course_code = s.session_course_ref
+where
+c.course_code = 'DT_RDBMS'
+
+--- 2 --
+select grade_score from grades where grade_student_epita_email_ref = 'simona.morasca@epita.fr'
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+SET search_path = Class_Exercise_DataBase, 'JoinTasks'; 
+
+SELECT * FROM categories c
+
+SELECT * FROM customers c
+
+Select contact_name FROM customers ;
+
+Select product_name FROM products ;
+
+SELECT
+   DISTINCT product_name
+FROM
+   products;
+   
+SELECT
+   DISTINCT employee_id
+FROM
+   employees;
+   
+SELECT COUNT(employee_id ) FROM employees;
+
+Select employee_id FROM employees ;
+
+SELECT * FROM orders c
+
+SELECT * FROM order_details c
+
+SELECT SUM((unit_price * quantity) * (1 - discount)) FROM order_details;
+
+SELECT SUM(unit_price ) FROM order_details;
+
+COPY order_details TO 'C:/Users/thosh/Desktop/StudyMaterial' WITH (FORMAT CSV, HEADER);
+
+select DISTINCT extract(year from order_date) FROM orders;
+
+select extract(year from order_date) FROM orders WHERE  order_date >= '1997-1-1'::date;
+
+select * FROM orders WHERE  order_date >= '1997-1-1'::date;
+
+SELECT orders.*
+FROM orders
+  RIGHT JOIN order_details USING (order_id); 
+  
+SELECT COUNT(shipped_date IS NULL)  - COUNT(shipped_date) FROM orders;
+  
+SELECT * FROM orders WHERE ship_country = 'France' OR ship_country = 'Belgium' ;
+
+SELECT COUNT(country) FROM customers  WHERE country = 'France';
+
+
+ALTER TABLE ONLY order_details
+    ADD CONSTRAINT fk_Order_facid FOREIGN KEY (order_id) REFERENCES orders(order_id);
+	
+SELECT * FROM order_details c
+SELECT * FROM orders c
+
+SELECT SUM((unit_price * quantity) * (1 - discount)) FROM order_details 
+LEFT JOIN orders on order_details.order_id = orders.order_id where order_date BETWEEN '1997-01-01' AND '1997-12-31'
+
+SELECT * FROM order_details 
+LEFT JOIN orders on order_details.order_id = orders.order_id where order_date BETWEEN '1997-01-01' AND '1997-12-31'
+
+SELECT * FROM region 
+
+SELECT company_name FROM suppliers
+
+SELECT country, COUNT(country) from customers group by country;
+
+SELECT COUNT(country) from customers group by country;
+
+select product_name,unit_price from products ORDER BY unit_price DESC
+
+select * from products
+
+SELECT category_id, COUNT(category_id) from products group by category_id;
+
+select * from order_details
+
+SELECT SUM((unit_price * quantity) * (1 - discount)) / COUNT(order_id) FROM order_details 
+
+SELECT category_id, SUM(unit_price * units_on_order) from products group by category_id;
+
+SELECT category_id, COUNT(category_id) from products group by category_id;
+
+select * from orders
+
+SELECT employee_id, COUNT(employee_id) from orders group by employee_id;
+
+SELECT supplier_id, SUM(unit_price * units_on_order) from products group by supplier_id;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+select distinct ship_country from orders order by ship_country asc
+
+select * from order_details
+
+select count(order_id) from orders where shipped_date is not null
+
+SELECT * FROM orders WHERE ship_country ilike 'France' OR ship_country ilike 'Belgium' ;
+
+select product_name from products order by unit_price desc limit 5
+
+select product_name from products where discontinued = 0;
+
+SELECT category_id, COUNT(product_id) from products group by category_id;
+
+SELECT SUM (unit_price * quantity) / COUNT(order_id) FROM order_details
+
+SELECT SUM((unit_price * quantity) * (1 - discount)) / COUNT(order_id) FROM order_details 
+
+select count(distinct(product_id)) from order_details
